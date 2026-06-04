@@ -45,13 +45,28 @@ export const CIRCUIT_TYPES = [
 ];
 
 // Ambientes para cálculo de pontos por ambiente
+// lux conforme ABNT NBR ISO/CIE 8995-1
 export const ROOM_TYPES = [
-  { id: 'sala',          label: 'Sala / Quarto',               hasTUE: false },
-  { id: 'cozinha',       label: 'Cozinha / Área de serviço',   hasTUE: true  },
-  { id: 'banheiro',      label: 'Banheiro',                    hasTUE: false },
-  { id: 'garagem',       label: 'Garagem',                     hasTUE: false },
-  { id: 'externa',       label: 'Área externa coberta',        hasTUE: false },
-  { id: 'personalizado', label: 'Personalizado',               hasTUE: false },
+  { id: 'sala',          label: 'Sala / Quarto',               hasTUE: false, lux: 300  },
+  { id: 'cozinha',       label: 'Cozinha / Área de serviço',   hasTUE: true,  lux: 500  },
+  { id: 'banheiro',      label: 'Banheiro',                    hasTUE: false, lux: 300  },
+  { id: 'garagem',       label: 'Garagem',                     hasTUE: false, lux: 150  },
+  { id: 'externa',       label: 'Área externa coberta',        hasTUE: false, lux: 100  },
+  { id: 'escritorio',    label: 'Escritório',                  hasTUE: false, lux: 500  },
+  { id: 'corredor',      label: 'Corredor / Escada',           hasTUE: false, lux: 150  },
+  { id: 'galpao',        label: 'Galpão industrial',           hasTUE: false, lux: 300  },
+  { id: 'personalizado', label: 'Personalizado',               hasTUE: false, lux: 300  },
+];
+
+// Luminárias comuns — fluxo luminoso em lúmens
+export const LUMINARIAS = [
+  { id: 'led9',   label: 'LED 9W  — 800 lm  (lâmpada comum)',        lm: 800  },
+  { id: 'led15',  label: 'LED 15W — 1.500 lm (lâmpada comum)',       lm: 1500 },
+  { id: 'led20',  label: 'LED 20W — 2.000 lm (lâmpada comum)',       lm: 2000 },
+  { id: 'led40',  label: 'LED 40W — 4.000 lm (downlight/plafon)',    lm: 4000 },
+  { id: 'led100', label: 'LED 100W — 10.000 lm (industrial/highbay)',lm: 10000},
+  { id: 'led150', label: 'LED 150W — 15.000 lm (industrial/highbay)',lm: 15000},
+  { id: 'led200', label: 'LED 200W — 20.000 lm (industrial/highbay)',lm: 20000},
 ];
 
 // Tabela TUE para exibição na aba de pontos por ambiente (cozinha)
@@ -133,9 +148,10 @@ export function calcCircuit({ power, voltage, fp, length, method }) {
 
 // ─── CÁLCULO DE PONTOS POR AMBIENTE ────────────────────────────────────────
 
-export function calcRoomPoints({ roomType, area, perimeter }) {
-  let minTug = 0, maxSpacing = null, ilumPts = 1, notes = [];
+export function calcRoomPoints({ roomType, area, perimeter, lumensByLuminaria, customLux }) {
+  let minTug = 0, maxSpacing = null, notes = [];
 
+  // ── Tomadas TUG ──────────────────────────────────────────────────────────
   if (roomType === 'sala') {
     if (area <= 6) {
       minTug = 1;
@@ -144,7 +160,6 @@ export function calcRoomPoints({ roomType, area, perimeter }) {
     } else {
       minTug = Math.max(1, Math.ceil(perimeter / 5));
       maxSpacing = 3.5;
-      ilumPts = 2;
       notes.push('Cômodo >10 m²: 1 tomada a cada 5 m de parede — arredondar para cima.');
     }
   } else if (roomType === 'cozinha') {
@@ -160,12 +175,37 @@ export function calcRoomPoints({ roomType, area, perimeter }) {
   } else if (roomType === 'externa') {
     minTug = 1;
     notes.push('IP mínimo conforme local (≥ IP44 para área coberta).');
+  } else if (roomType === 'escritorio') {
+    minTug = Math.max(2, Math.ceil(perimeter / 5));
+    maxSpacing = 3.5;
+    notes.push('Recomendado circuito exclusivo para equipamentos de TI.');
+  } else if (roomType === 'corredor') {
+    minTug = Math.max(1, Math.ceil(perimeter / 10));
+  } else if (roomType === 'galpao') {
+    minTug = Math.max(2, Math.ceil(perimeter / 5));
+    notes.push('Verificar necessidade de tomadas trifásicas para equipamentos industriais.');
+    notes.push('IP mínimo recomendado: IP44 para área interna com pó.');
   } else if (roomType === 'personalizado') {
     minTug = Math.max(1, Math.ceil(perimeter / 5));
-    ilumPts = area > 10 ? 2 : 1;
     notes.push('Cálculo pela regra geral: 1 tomada a cada 5 m de parede (perímetro).');
     notes.push('Ajuste conforme as necessidades específicas do ambiente.');
   }
 
-  return { minTug, maxSpacing, ilumPts, notes };
+  // ── Pontos de iluminação — fórmula luminotécnica ─────────────────────────
+  // N = (E × A) / (φ × Fu × Fm)
+  // E  = iluminância em lux (NBR ISO/CIE 8995-1)
+  // A  = área do ambiente (m²)
+  // φ  = fluxo luminoso por luminária (lm)
+  // Fu = fator de utilização = 0,60 (padrão conservador)
+  // Fm = fator de manutenção = 0,80 (depreciação ao longo do tempo)
+
+  const room     = ROOM_TYPES.find(r => r.id === roomType);
+  const E        = customLux || room?.lux || 300;
+  const phi      = lumensByLuminaria || 2000;
+  const Fu       = 0.60;
+  const Fm       = 0.80;
+  const ilumPts  = Math.ceil((E * area) / (phi * Fu * Fm));
+  const fluxoTotal = E * area; // lm necessários no total
+
+  return { minTug, maxSpacing, ilumPts, notes, E, fluxoTotal };
 }
