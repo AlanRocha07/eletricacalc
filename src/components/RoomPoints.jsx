@@ -111,6 +111,10 @@ export default function RoomPoints() {
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Perímetro de Paredes</label>
             <Input value={perimeter} onChange={setPerimeter} suffix="m" />
+            <p className="text-xs text-muted-foreground">
+              Retangular: 2 × (comprimento + largura). Ex: sala 5×4 m → 2 × (5+4) = 18 m.
+              Usado apenas para calcular tomadas TUG.
+            </p>
           </div>
 
           {/* Luminária */}
