@@ -24,7 +24,7 @@ export default function Home() {
               <Zap className="h-4 w-4 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-sm font-bold text-foreground tracking-tight">ElétricaCalc</h1>
+              <h1 className="text-sm font-bold text-foreground tracking-tight">ElétriCalc</h1>
               <p className="text-xs text-muted-foreground hidden sm:block">
                 NBR 5410 · NBR 5444 · NBR 14136
               </p>
@@ -65,7 +65,7 @@ export default function Home() {
       <footer className="border-t border-border mt-12 py-4">
         <div className="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-xs text-muted-foreground">
-            ElétricaCalc — Calculadora para eletricistas e técnicos
+            ElétriCalc — Calculadora para eletricistas e técnicos
           </p>
           <p className="text-xs text-muted-foreground">
             Baseado em NBR 5410 · NBR 5444 · NBR 14136 — Maio 2026

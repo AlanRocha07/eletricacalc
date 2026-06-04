@@ -1,6 +1,6 @@
 {
-  "name": "ElétricaCalc",
-  "short_name": "ElétricaCalc",
+  "name": "ElétriCalc",
+  "short_name": "ElétriCalc",
   "description": "Calculadora de dimensionamento elétrico conforme NBR 5410",
   "start_url": "/",
   "display": "standalone",
