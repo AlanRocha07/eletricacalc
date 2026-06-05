@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Zap, PlugZap, BookOpen } from 'lucide-react';
+import { Zap, PlugZap, BookOpen, LogOut } from 'lucide-react';
 import CircuitCalculator from '../components/CircuitCalculator';
 import RoomPoints        from '../components/RoomPoints';
 import QuickReference    from '../components/QuickReference';
+import { supabase }      from '../lib/supabase';
 
 const TABS = [
   { id: 'circuit',   label: 'Dimensionar Circuito', icon: Zap      },
@@ -10,8 +11,12 @@ const TABS = [
   { id: 'reference', label: 'Referência Rápida',    icon: BookOpen },
 ];
 
-export default function Home() {
+export default function Home({ user }) {
   const [tab, setTab] = useState('circuit');
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+  }
 
   return (
     <div className="min-h-screen bg-background font-sans">
@@ -30,9 +35,20 @@ export default function Home() {
               </p>
             </div>
           </div>
-          <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded font-mono">
-            v2026
-          </span>
+
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-muted-foreground hidden sm:block truncate max-w-[160px]">
+              {user?.email}
+            </span>
+            <button
+              onClick={handleLogout}
+              title="Sair"
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors"
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="hidden sm:block">Sair</span>
+            </button>
+          </div>
         </div>
 
         {/* Abas de navegação */}
