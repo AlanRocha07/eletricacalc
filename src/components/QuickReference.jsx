@@ -193,6 +193,71 @@ export default function QuickReference() {
         </div>
       </Section>
 
+      {/* Aterramento */}
+      <Section title="Aterramento e Proteção — Resumo (NBR 5410 · IEC 60364)">
+        <p className="text-xs text-muted-foreground mb-3">Condutor de proteção (PE) — bitola mínima conforme NBR 5410 Tabela 54.2</p>
+        <Table
+          headers={['Fase (S)', 'PE mínimo']}
+          rows={[
+            ['S ≤ 16 mm²',        '= S (igual à fase)'],
+            ['16 < S ≤ 35 mm²',   '16 mm²'],
+            ['S > 35 mm²',        'S / 2 → arredondar para bitola normalizada ≥ S/2'],
+          ]}
+        />
+        <div className="mt-3" />
+        <Table
+          headers={['Sistema', 'Descrição', 'DR obrigatório?']}
+          rows={[
+            ['TN-S',   'Neutro e PE separados em todo o trajeto — preferido em instalações novas', 'Recomendado'],
+            ['TN-C',   'Neutro e PE combinados (PEN) — redes de distribuição antigas',              'Não aplicável'],
+            ['TN-C-S', 'PEN na entrada, TN-S interno — residencial com ramal TN-C',                'Recomendado'],
+            ['TT',     'Terra independente na instalação — rurais e isoladas',                      'Obrigatório'],
+            ['IT',     'Neutro isolado — hospitais, minas, segurança crítica',                      'Monitor de isolação'],
+          ]}
+        />
+        <div className="mt-3 text-xs text-muted-foreground font-mono bg-muted/30 rounded-lg p-3">
+          DR (dispositivo diferencial-residual): <strong className="text-foreground">30 mA</strong> proteção pessoal &nbsp;|&nbsp;
+          <strong className="text-foreground">10 mA</strong> equipamentos sensíveis &nbsp;|&nbsp;
+          <strong className="text-foreground">300 mA</strong> proteção contra incêndio
+        </div>
+      </Section>
+
+      {/* SPDA */}
+      <Section title="SPDA — Proteção contra Descargas Atmosféricas (NBR 5419:2015)">
+        <p className="text-xs text-muted-foreground mb-3">Níveis de Proteção (NP) — NBR 5419-1:2015</p>
+        <Table
+          headers={['NP', 'Eficiência', 'Corrente mín.', 'Corrente máx.', 'Aplicação típica']}
+          rows={[
+            ['NP I',  '99%', '3 kA',  '200 kA', 'Hospitais, explosivos, áreas de risco crítico'],
+            ['NP II', '97%', '5 kA',  '150 kA', 'Indústrias, edifícios com alto risco de incêndio'],
+            ['NP III','91%', '10 kA', '100 kA', 'Edificações residenciais altas, prédios comerciais'],
+            ['NP IV', '84%', '16 kA', '100 kA', 'Edificações de baixo risco, residências isoladas'],
+          ]}
+        />
+        <div className="mt-3" />
+        <p className="text-xs text-muted-foreground mb-2">Métodos de posicionamento dos captores — NBR 5419-3:2015</p>
+        <Table
+          headers={['Método', 'NP I', 'NP II', 'NP III', 'NP IV']}
+          rows={[
+            ['Esfera rolante (raio)', '20 m', '30 m', '45 m', '60 m'],
+            ['Malha (gaiola Faraday)', '5×5 m', '10×10 m', '15×15 m', '20×20 m'],
+          ]}
+        />
+        <div className="mt-3" />
+        <p className="text-xs text-muted-foreground mb-2">DPS — Proteção contra surtos por zona (NBR IEC 61643-11)</p>
+        <Table
+          headers={['Zona (LPZ)', 'Local', 'Tipo de DPS', 'Iimp mínimo']}
+          rows={[
+            ['LPZ 0→1', 'Entrada da edificação (QGBT)', 'Tipo 1 (classe I)',   '≥ 12,5 kA (10/350 µs)'],
+            ['LPZ 1→2', 'Quadros de distribuição',      'Tipo 2 (classe II)',  '≥ 5 kA (8/20 µs)'],
+            ['LPZ 2→3', 'Próximo a equipamentos sensíveis', 'Tipo 3 (classe III)', '≥ 1,5 kA (8/20 µs)'],
+          ]}
+        />
+        <div className="mt-3 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-xs text-destructive">
+          ⚠ Toda instalação com SPDA externo deve ter obrigatoriamente DPS Tipo 1 no ponto de entrada da energia elétrica — NBR 5410 item 5.4.3 e NBR 5419-4:2015.
+        </div>
+      </Section>
+
     </div>
   );
 }
